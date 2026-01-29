@@ -1,0 +1,23 @@
+[Unit]
+Description=Kalpana Security Daemon
+Documentation=https://github.com/kalpana-os
+After=network.target kalpana-core.service
+Requires=kalpana-core.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/bin/python3 /opt/kalpana/kalpana-security/src/main.py
+Restart=always
+RestartSec=5
+
+# Security hardening
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+NoNewPrivileges=false
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target

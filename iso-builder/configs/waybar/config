@@ -1,0 +1,77 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 30,
+    "spacing": 4,
+    
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-center": ["clock"],
+    "modules-right": ["network", "pulseaudio", "cpu", "memory", "battery", "tray"],
+    
+    "sway/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": true,
+        "format": "{icon}",
+        "format-icons": {
+            "1": "󰲠",
+            "2": "󰲢",
+            "3": "󰲤",
+            "4": "󰲦",
+            "5": "󰲨",
+            "urgent": "",
+            "focused": "",
+            "default": ""
+        }
+    },
+    
+    "sway/mode": {
+        "format": "<span style=\"italic\">{}</span>"
+    },
+    
+    "clock": {
+        "format": "🧠 {:%H:%M}",
+        "format-alt": "{:%Y-%m-%d}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt>{calendar}</tt>"
+    },
+    
+    "cpu": {
+        "format": "󰻠 {usage}%",
+        "tooltip": true
+    },
+    
+    "memory": {
+        "format": "󰍛 {}%"
+    },
+    
+    "battery": {
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{icon} {capacity}%",
+        "format-charging": "󰂄 {capacity}%",
+        "format-plugged": "󰂄 {capacity}%",
+        "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
+    },
+    
+    "network": {
+        "format-wifi": "󰤨 {signalStrength}%",
+        "format-ethernet": "󰈀 {ipaddr}",
+        "format-disconnected": "󰤭 Offline",
+        "tooltip-format": "{essid} - {ipaddr}"
+    },
+    
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-bluetooth": "󰂯 {volume}%",
+        "format-muted": "󰝟",
+        "format-icons": {
+            "default": ["󰕿", "󰖀", "󰕾"]
+        },
+        "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+    },
+    
+    "tray": {
+        "spacing": 10
+    }
+}

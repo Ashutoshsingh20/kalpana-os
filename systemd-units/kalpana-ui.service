@@ -1,0 +1,22 @@
+[Unit]
+Description=Kalpana Web UI Server
+Documentation=https://github.com/kalpana-os
+After=network.target kalpana-core.service
+Wants=kalpana-core.service
+
+[Service]
+Type=simple
+User=kalpana
+Group=kalpana
+ExecStart=/usr/bin/python3 /opt/kalpana/kalpana-ui/src/webui.py
+Restart=on-failure
+RestartSec=3
+
+# Security
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=graphical.target

@@ -1,0 +1,108 @@
+/* Kalpana OS - Waybar Styles */
+
+* {
+    font-family: "JetBrains Mono", "monospace";
+    font-size: 13px;
+}
+
+window#waybar {
+    background-color: rgba(10, 10, 15, 0.95);
+    border-bottom: 2px solid #00ffff;
+    color: #ffffff;
+}
+
+#workspaces button {
+    padding: 0 8px;
+    background-color: transparent;
+    color: #888888;
+    border: none;
+    border-radius: 0;
+}
+
+#workspaces button:hover {
+    background: rgba(0, 255, 255, 0.2);
+}
+
+#workspaces button.focused {
+    color: #00ffff;
+    border-bottom: 2px solid #00ffff;
+}
+
+#workspaces button.urgent {
+    color: #ff0000;
+}
+
+#clock,
+#battery,
+#cpu,
+#memory,
+#network,
+#pulseaudio,
+#tray {
+    padding: 0 10px;
+    color: #ffffff;
+}
+
+#clock {
+    font-weight: bold;
+    color: #00ffff;
+}
+
+#battery {
+    color: #00ff00;
+}
+
+#battery.charging {
+    color: #00ffff;
+}
+
+#battery.warning:not(.charging) {
+    color: #ffaa00;
+}
+
+#battery.critical:not(.charging) {
+    color: #ff0000;
+    animation: blink 0.5s linear infinite alternate;
+}
+
+@keyframes blink {
+    to {
+        color: #ffffff;
+    }
+}
+
+#cpu {
+    color: #00ffff;
+}
+
+#memory {
+    color: #ff00ff;
+}
+
+#network {
+    color: #00ff00;
+}
+
+#network.disconnected {
+    color: #ff0000;
+}
+
+#pulseaudio {
+    color: #ffaa00;
+}
+
+#pulseaudio.muted {
+    color: #666666;
+}
+
+#tray {
+    margin-right: 10px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+}

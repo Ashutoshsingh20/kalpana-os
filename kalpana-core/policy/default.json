@@ -1,0 +1,72 @@
+{
+  "name": "default",
+  "version": "1.0",
+  "description": "Default security policy for Kalpana OS",
+  "rules": [
+    {
+      "name": "allow_trusted_processes",
+      "action": "*",
+      "conditions": {
+        "process_name": ["kalpana-shell", "kalpana-ui", "systemd"]
+      },
+      "decision": "allow"
+    },
+    {
+      "name": "protect_kalpana_core",
+      "action": ["file_write", "file_delete"],
+      "conditions": {
+        "target_pattern": "/kalpana/core/*"
+      },
+      "decision": "deny",
+      "reason": "Kalpana Core is protected from modification"
+    },
+    {
+      "name": "protect_boot",
+      "action": ["file_write", "file_delete"],
+      "conditions": {
+        "target_pattern": "/boot/*"
+      },
+      "decision": "deny",
+      "reason": "Boot partition is protected"
+    },
+    {
+      "name": "allow_user_files",
+      "action": ["file_read", "file_write", "file_delete"],
+      "conditions": {
+        "target_pattern": "/users/*"
+      },
+      "decision": "allow"
+    },
+    {
+      "name": "allow_tmp",
+      "action": ["file_read", "file_write", "file_delete"],
+      "conditions": {
+        "target_pattern": "/tmp/*"
+      },
+      "decision": "allow"
+    },
+    {
+      "name": "audit_network",
+      "action": ["network_connect", "network_listen"],
+      "conditions": {},
+      "decision": "audit",
+      "reason": "Network activity is logged for review"
+    },
+    {
+      "name": "deny_privilege_escalation",
+      "action": "privilege_escalate",
+      "conditions": {},
+      "decision": "deny",
+      "reason": "Privilege escalation requires Kalpana Core approval"
+    },
+    {
+      "name": "sandbox_unknown",
+      "action": "*",
+      "conditions": {
+        "default": true
+      },
+      "decision": "sandbox",
+      "reason": "Unknown actions are sandboxed by default"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+[Unit]
+Description=Kalpana Core Authority Daemon
+Documentation=https://kalpana.local/docs/core
+DefaultDependencies=no
+After=basic.target
+Before=multi-user.target
+Conflicts=rescue.target emergency.target
+
+[Service]
+Type=notify
+ExecStart=/kalpana/core/bin/kalpana-core
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -TERM $MAINPID
+
+# Critical service settings
+Restart=always
+RestartSec=1
+TimeoutStartSec=30
+TimeoutStopSec=30
+
+# Security hardening
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=false
+CapabilityBoundingSet=CAP_SYS_ADMIN CAP_NET_ADMIN CAP_KILL CAP_SYS_PTRACE
+
+# Run as root (required for system authority)
+User=root
+Group=root
+
+# Environment
+Environment=KALPANA_DEV_MODE=0
+Environment=PYTHONUNBUFFERED=1
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kalpana-core
+
+# Watchdog
+WatchdogSec=30
+
+[Install]
+WantedBy=multi-user.target
