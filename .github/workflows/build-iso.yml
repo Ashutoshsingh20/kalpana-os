@@ -1,0 +1,62 @@
+name: Build Kalpana OS ISO
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Initialize pacman keyring
+        run: |
+          pacman-key --init
+          pacman-key --populate archlinux
+          pacman -Sy --noconfirm archlinux-keyring
+          pacman -Syu --noconfirm
+      
+      - name: Install archiso and dependencies
+        run: |
+          pacman -S --noconfirm \
+            archiso \
+            mkinitcpio \
+            mkinitcpio-archiso \
+            git \
+            squashfs-tools \
+            libisoburn \
+            dosfstools \
+            e2fsprogs \
+            mtools \
+            which
+      
+      - name: Make scripts executable
+        run: chmod +x iso-builder/*.sh
+      
+      - name: Build ISO
+        run: |
+          cd iso-builder
+          ./build-iso.sh build
+      
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kalpana-os-iso
+          path: out/*.iso
+          retention-days: 7
+      
+      - name: Create Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: out/*.iso
+          draft: false
+          prerelease: false
