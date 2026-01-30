@@ -74,7 +74,7 @@ jobs:
           vim
           nano
           htop
-          neofetch
+          fastfetch
           networkmanager
           pipewire
           wireplumber
