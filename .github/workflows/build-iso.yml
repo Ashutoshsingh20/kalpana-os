@@ -30,12 +30,14 @@ jobs:
             archiso \
             mkinitcpio \
             mkinitcpio-archiso \
+            grub \
             git \
             squashfs-tools \
             libisoburn \
             dosfstools \
             e2fsprogs \
-            mtools
+            mtools \
+            syslinux
       
       - name: Copy base profile
         run: |
@@ -43,7 +45,7 @@ jobs:
       
       - name: Customize profile
         run: |
-          # Update profile definition
+          # Update profile definition with modern boot modes
           cat > /tmp/kalpana-profile/profiledef.sh << 'PROFILE'
           #!/usr/bin/env bash
           iso_name="kalpana-os"
@@ -54,8 +56,7 @@ jobs:
           install_dir="kalpana"
           buildmodes=('iso')
           bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito' 
-                     'uefi-ia32.grub.eltorito' 'uefi-x64.grub.eltorito'
-                     'uefi-ia32.grub.esp' 'uefi-x64.grub.esp')
+                     'uefi-x64.grub.esp' 'uefi-x64.grub.eltorito')
           arch="x86_64"
           pacman_conf="${profile}/pacman.conf"
           airootfs_image_type="squashfs"
