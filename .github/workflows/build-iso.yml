@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     tags: ['v*']
-  workflow_dispatch:  # Allow manual trigger
+  workflow_dispatch:
 
 jobs:
   build-iso:
@@ -35,16 +35,92 @@ jobs:
             libisoburn \
             dosfstools \
             e2fsprogs \
-            mtools \
-            which
+            mtools
       
-      - name: Make scripts executable
-        run: chmod +x iso-builder/*.sh
+      - name: Copy base profile
+        run: |
+          cp -r /usr/share/archiso/configs/releng /tmp/kalpana-profile
+      
+      - name: Customize profile
+        run: |
+          # Update profile definition
+          cat > /tmp/kalpana-profile/profiledef.sh << 'PROFILE'
+          #!/usr/bin/env bash
+          iso_name="kalpana-os"
+          iso_label="KALPANA_OS"
+          iso_publisher="Kalpana OS Project"
+          iso_application="Kalpana OS Live"
+          iso_version="0.1.0"
+          install_dir="kalpana"
+          buildmodes=('iso')
+          bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito' 
+                     'uefi-ia32.grub.eltorito' 'uefi-x64.grub.eltorito'
+                     'uefi-ia32.grub.esp' 'uefi-x64.grub.esp')
+          arch="x86_64"
+          pacman_conf="${profile}/pacman.conf"
+          airootfs_image_type="squashfs"
+          airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '15' '-b' '1M')
+          PROFILE
+          
+          # Add Kalpana packages
+          cat >> /tmp/kalpana-profile/packages.x86_64 << 'PACKAGES'
+          
+          # Kalpana OS extras
+          python
+          python-pip
+          python-numpy
+          git
+          vim
+          nano
+          htop
+          neofetch
+          networkmanager
+          pipewire
+          wireplumber
+          sway
+          foot
+          waybar
+          wofi
+          brightnessctl
+          playerctl
+          espeak-ng
+          PACKAGES
+      
+      - name: Copy Kalpana files to airootfs
+        run: |
+          mkdir -p /tmp/kalpana-profile/airootfs/opt/kalpana
+          cp -r kalpana-core /tmp/kalpana-profile/airootfs/opt/kalpana/
+          cp -r kalpana-shell /tmp/kalpana-profile/airootfs/opt/kalpana/
+          cp -r kalpana-security /tmp/kalpana-profile/airootfs/opt/kalpana/
+          cp -r kalpana-ui /tmp/kalpana-profile/airootfs/opt/kalpana/
+          cp -r kalpana-tools /tmp/kalpana-profile/airootfs/opt/kalpana/
+          
+          # Create launcher
+          mkdir -p /tmp/kalpana-profile/airootfs/usr/local/bin
+          echo '#!/bin/bash' > /tmp/kalpana-profile/airootfs/usr/local/bin/kalpana-shell
+          echo 'exec python3 /opt/kalpana/kalpana-shell/src/shell.py "$@"' >> /tmp/kalpana-profile/airootfs/usr/local/bin/kalpana-shell
+          chmod +x /tmp/kalpana-profile/airootfs/usr/local/bin/kalpana-shell
+          
+          # MOTD
+          mkdir -p /tmp/kalpana-profile/airootfs/etc
+          cat > /tmp/kalpana-profile/airootfs/etc/motd << 'MOTD'
+          
+          ██╗  ██╗ █████╗ ██╗     ██████╗  █████╗ ███╗   ██╗ █████╗ 
+          ██║ ██╔╝██╔══██╗██║     ██╔══██╗██╔══██╗████╗  ██║██╔══██╗
+          █████╔╝ ███████║██║     ██████╔╝███████║██╔██╗ ██║███████║
+          ██╔═██╗ ██╔══██║██║     ██╔═══╝ ██╔══██║██║╚██╗██║██╔══██║
+          ██║  ██╗██║  ██║███████╗██║     ██║  ██║██║ ╚████║██║  ██║
+          ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝
+          
+          🧠 AI-Native Operating System
+          
+          Run: kalpana-shell
+          MOTD
       
       - name: Build ISO
         run: |
-          cd iso-builder
-          ./build-iso.sh build
+          mkdir -p out
+          mkarchiso -v -w /tmp/work -o out /tmp/kalpana-profile
       
       - name: Upload ISO artifact
         uses: actions/upload-artifact@v4
@@ -52,11 +128,3 @@ jobs:
           name: kalpana-os-iso
           path: out/*.iso
           retention-days: 7
-      
-      - name: Create Release (on tag)
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: out/*.iso
-          draft: false
-          prerelease: false
